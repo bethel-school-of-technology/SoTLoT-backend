@@ -34,8 +34,7 @@ app.get('/recipes', (req, res) => {
     
     var colRef = firestore.collection("recipes")
     
-    let allCities = colRef.get()
-      .then(snapshot => {
+    colRef.get().then(snapshot => {
         var recipes = [];
         snapshot.forEach(doc => {
             recipes.push(doc.data())
@@ -49,6 +48,23 @@ app.get('/recipes', (req, res) => {
 })
 
 // GET all copied recipes
+
+app.get('/recipes/:user/saved', (req, res) => {
+    
+    var colRef = firestore.collection("users").doc(req.params.user).collection("saved-recipes");
+    
+    colRef.get().then(snapshot => {
+        var recipes = [];
+        snapshot.forEach(doc => {
+            recipes.push(doc.data())
+        });
+        return res.json(recipes)
+      }
+      ).catch((error) => {
+        return res.status(400).json({ "message": "Unable to connect to Firestore." });
+    });
+
+})
 
 // GET user info
 
