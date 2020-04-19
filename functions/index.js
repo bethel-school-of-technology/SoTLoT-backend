@@ -25,7 +25,7 @@ app.get('/recipes/:recipe', (req, res) => {
     });
 });
 
-// GET a specific copied recipe
+// GET a specific saved recipe
 
 
 // GET all recipes
@@ -47,7 +47,7 @@ app.get('/recipes', (req, res) => {
 
 })
 
-// GET all copied recipes
+// GET all saved recipes
 
 app.get('/recipes/:user/saved', (req, res) => {
     
@@ -68,10 +68,24 @@ app.get('/recipes/:user/saved', (req, res) => {
 
 // GET user info
 
-// POST for copying a recipe
+// POST for copying/saving a recipe
 
-// PUT to edit a copied recipe
+// PUT to edit a saved recipe
 
-// DELETE to remove a copied recipe
+// DELETE to remove a saved recipe
+
+app.get('/users/:user/:recipe/delete', (req, res) => {
+    var docRef = firestore.collection("users").doc(req.params.user).collection("saved-recipes").doc(req.params.recipe);
+
+    docRef.delete().then((doc) => {
+        if (doc.exists) {
+            return res.status(400).json({ "message": "Recipe delete failed!" });
+        } else {
+            return res.status(200).json({ "message": "Recipe delete successful!" });
+        }
+    }).catch((error) => {
+        return res.status(400).json({ "message": "Unable to connect to Firestore." });
+    });
+});
 
 exports.api = functions.https.onRequest(app);
