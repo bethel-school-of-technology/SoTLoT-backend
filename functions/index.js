@@ -27,7 +27,7 @@ app.get('/recipes/:recipe', (req, res) => {
 
 // GET a specific saved recipe
 
-app.get('/users/.user/:recipe', (req, res) => {
+app.get('/users/:user/:recipe', (req, res) => {
     var docRef = firestore.collection("users").doc(req.params.user).collection("saved-recipes").doc(req.params.recipe);
 
     docRef.get().then((doc) => {
