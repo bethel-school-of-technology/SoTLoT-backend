@@ -68,6 +68,21 @@ app.get('/recipes/:user/saved', (req, res) => {
 
 // GET user info
 
+app.get('/users/:user', (req, res) => {
+    var docRef = firestore.collection("users").doc(req.params.user);
+
+    docRef.get().then((doc) => {
+        if (doc.exists) {
+            return res.status(200).json(doc.data());
+        } else {
+            return res.status(400).json({ "message": "Collection not found!" });
+        }
+    }).catch((error) => {
+        return res.status(400).json({ "message": "Unable to connect to Firestore." });
+    });
+});
+
+
 // POST for copying/saving a recipe
 
 // PUT to edit a saved recipe
