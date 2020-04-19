@@ -27,6 +27,20 @@ app.get('/recipes/:recipe', (req, res) => {
 
 // GET a specific saved recipe
 
+app.get('/users/:user/:recipe', (req, res) => {
+    var docRef = firestore.collection("users").doc(req.params.user).collection("saved-recipes").doc(req.params.recipe);
+
+    docRef.get().then((doc) => {
+        if (doc.exists) {
+            return res.status(200).json(doc.data());
+        } else {
+            return res.status(400).json({ "message": "Collection not found!" });
+        }
+    }).catch((error) => {
+        return res.status(400).json({ "message": "Unable to connect to Firestore." });
+    });
+});
+
 
 // GET all recipes
 
