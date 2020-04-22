@@ -45,17 +45,22 @@ app.get('/users/:user/:recipe', (req, res) => {
 // GET all recipes
 
 app.get('/recipes', (req, res) => {
-    
+
     var colRef = firestore.collection("recipes")
-    
+
     colRef.get().then(snapshot => {
         var recipes = [];
         snapshot.forEach(doc => {
+            if (doc.id !== doc.data().id) {
+                colRef.doc(doc.id).update({
+                    id: doc.id
+                })
+            }
             recipes.push(doc.data())
         });
         return res.status(200).json(recipes)
-      }
-      ).catch((error) => {
+    }
+    ).catch((error) => {
         return res.status(400).json({ "message": "Unable to connect to Firestore." });
     });
 
@@ -64,17 +69,22 @@ app.get('/recipes', (req, res) => {
 // GET all saved recipes
 
 app.get('/recipes/:user/saved', (req, res) => {
-    
+
     var colRef = firestore.collection("users").doc(req.params.user).collection("saved-recipes");
-    
+
     colRef.get().then(snapshot => {
         var recipes = [];
         snapshot.forEach(doc => {
+            if (doc.id !== doc.data().id) {
+                colRef.doc(doc.id).update({
+                    id: doc.id
+                })
+            }
             recipes.push(doc.data())
         });
         return res.status(200).json(recipes)
-      }
-      ).catch((error) => {
+    }
+    ).catch((error) => {
         return res.status(400).json({ "message": "Unable to connect to Firestore." });
     });
 
@@ -100,14 +110,14 @@ app.get('/users/:user', (req, res) => {
 // POST for copying/saving a recipe
 
 app.post('/:recipe/add/:user', (req, res) => {
-    
+
     let data = firestore.collection('recipes').doc(req.params.recipe).get().then((doc) => {
-       
+
         firestore.collection('users').doc(req.params.user).collection('saved-recipes').add(doc.data())
-        return res.status(200).json({ "message": "Recipe Saved!"})
-        })
+        return res.status(200).json({ "message": "Recipe Saved!" })
+    })
 })
-    
+
 
 // PUT to edit a saved recipe
 
