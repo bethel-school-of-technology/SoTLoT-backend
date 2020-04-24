@@ -51,6 +51,7 @@ app.get('/recipes', (req, res) => {
     colRef.get().then(snapshot => {
         var recipes = [];
         snapshot.forEach(doc => {
+            // After the recipes are all loaded, we can remove this
             if (doc.id !== doc.data().id) {
                 colRef.doc(doc.id).update({
                     id: doc.id
@@ -75,11 +76,6 @@ app.get('/recipes/:user/saved', (req, res) => {
     colRef.get().then(snapshot => {
         var recipes = [];
         snapshot.forEach(doc => {
-            if (doc.id !== doc.data().id) {
-                colRef.doc(doc.id).update({
-                    id: doc.id
-                })
-            }
             recipes.push(doc.data())
         });
         return res.status(200).json(recipes)
@@ -111,11 +107,22 @@ app.get('/users/:user', (req, res) => {
 
 app.post('/:recipe/add/:user', (req, res) => {
 
-    let data = firestore.collection('recipes').doc(req.params.recipe).get().then((doc) => {
+    return firestore.collection('recipes').doc(req.params.recipe).get().then((doc) => {
 
-        firestore.collection('users').doc(req.params.user).collection('saved-recipes').add(doc.data())
-        return res.status(200).json({ "message": "Recipe Saved!" })
-    })
+        return firestore.collection('users').doc(req.params.user).collection('saved-recipes').add(doc.data())
+            .then((newdoc) => {
+                firestore.collection('users').doc(req.params.user).collection('saved-recipes')
+                    .doc(newdoc.id).update({
+                        id: newdoc.id
+                    });
+                    return res.status(200).json(newdoc.id);
+            }).catch((error) => {
+                return res.status(400).json({ "message": "Collection/Doc not found!" });
+            });
+    }).catch((error) => {
+        return res.status(400).json({ "message": "Unable to connect to Firestore." });
+    });
+
 })
 
 
