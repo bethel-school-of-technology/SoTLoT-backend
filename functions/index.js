@@ -115,7 +115,7 @@ app.post('/:recipe/add/:user', (req, res) => {
                     .doc(newdoc.id).update({
                         id: newdoc.id
                     });
-                    return res.status(200).json(newdoc.id);
+                return res.status(200).json(newdoc.id);
             }).catch((error) => {
                 return res.status(400).json({ "message": "Collection/Doc not found!" });
             });
@@ -125,8 +125,33 @@ app.post('/:recipe/add/:user', (req, res) => {
 
 })
 
+//POST to add a new saved recipe
+
+app.post('/users/newrecipe/:user', (req, res) => {
+
+    //pull in the req.body so we have a recipe to add
+    //add recipe to the user's collection
+    //catch the new doc's id
+    //set the field "id" in the doc to match the doc.id
+    //return with the new doc.id
+
+    let newRecipe = req.body
+    return firestore.collection('users').doc(req.params.user).collection('saved-recipes').add(newRecipe)
+        .then((newdoc) => {
+            firestore.collection('users').doc(req.params.user).collection('saved-recipes')
+                .doc(newdoc.id).update({
+                    id: newdoc.id
+                });
+            return res.status(200).json(newdoc.id);
+        }).catch((error) => {
+            return res.status(400).json({ "message": "Collection/Doc not found!" });
+        });
+})
+
 
 // PUT to edit a saved recipe
+
+
 
 // DELETE to remove a saved recipe
 
