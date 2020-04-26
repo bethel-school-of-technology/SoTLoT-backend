@@ -151,7 +151,17 @@ app.post('/users/newrecipe/:user', (req, res) => {
 
 // PUT to edit a saved recipe
 
+app.post('/update/:user/:recipe', (req, res) => {
 
+    let updatedRecipe = req.body
+    return firestore.collection('users').doc(req.params.user).collection('saved-recipes').doc(req.params.recipe).update(updatedRecipe)
+    .then((r) => {
+        return res.status(200).json(updatedRecipe.id)
+    }).catch((error) => {
+        return res.status(400).json({ "message": "update failed!" });
+    })
+
+})
 
 // DELETE to remove a saved recipe
 
