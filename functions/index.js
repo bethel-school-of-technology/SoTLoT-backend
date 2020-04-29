@@ -155,11 +155,11 @@ app.post('/update/:user/:recipe', (req, res) => {
 
     let updatedRecipe = req.body
     return firestore.collection('users').doc(req.params.user).collection('saved-recipes').doc(req.params.recipe).update(updatedRecipe)
-    .then((r) => {
-        return res.status(200).json(updatedRecipe.id)
-    }).catch((error) => {
-        return res.status(400).json({ "message": "update failed!" });
-    })
+        .then((r) => {
+            return res.status(200).json(updatedRecipe.id)
+        }).catch((error) => {
+            return res.status(400).json({ "message": "update failed!" });
+        })
 
 })
 
@@ -178,5 +178,29 @@ app.get('/users/:user/:recipe/delete', (req, res) => {
         return res.status(400).json({ "message": "Unable to connect to Firestore." });
     });
 });
+
+//Search All Recipes
+
+app.get('/recipes/search/:search', (req, res) => {
+
+    var colRef = firestore.collection("recipes")
+
+    colRef.get().then(snapshot => {
+        var recipes = [];
+        snapshot.forEach(docSearch => {
+            let name = docSearch.data().name.toLowerCase();
+            let input = req.params.search.toLowerCase();
+            if(name.includes(input)) {
+                recipes.push(docSearch.data())
+            }
+        });
+        return res.status(200).json(recipes)
+    }
+    ).catch((error) => {
+        return res.status(400).json({ "message": "Unable to connect to Firestore." });
+    });
+
+})
+
 
 exports.api = functions.https.onRequest(app);
