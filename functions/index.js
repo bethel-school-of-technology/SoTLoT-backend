@@ -71,7 +71,7 @@ app.get('/recipes', (req, res) => {
 
 app.get('/recipes/:user/saved', (req, res) => {
 
-    var colRef = firestore.collection("users").doc(req.params.user).collection("saved-recipes");
+    var colRef = firestore.collection("users").doc(req.params.user).collection("saved-recipes").orderBy('timeStamp',  'desc');
 
     colRef.get().then(snapshot => {
         var recipes = [];
@@ -113,7 +113,8 @@ app.post('/:recipe/add/:user', (req, res) => {
             .then((newdoc) => {
                 firestore.collection('users').doc(req.params.user).collection('saved-recipes')
                     .doc(newdoc.id).update({
-                        id: newdoc.id
+                        id: newdoc.id,
+                        timeStamp: req.body.timeStamp
                     });
                 return res.status(200).json(newdoc.id);
             }).catch((error) => {
