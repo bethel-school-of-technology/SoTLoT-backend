@@ -51,12 +51,13 @@ app.get('/recipes', (req, res) => {
     colRef.get().then(snapshot => {
         var recipes = [];
         snapshot.forEach(doc => {
-            // After the recipes are all loaded, we can remove this
+            // After the recipes are all loaded, we can remove this line ->
             if (doc.id !== doc.data().id) {
                 colRef.doc(doc.id).update({
                     id: doc.id
                 })
             }
+            // <- to this line
             recipes.push(doc.data())
         });
         return res.status(200).json(recipes)
@@ -185,6 +186,29 @@ app.get('/users/:user/:recipe/delete', (req, res) => {
 app.get('/recipes/search/:search', (req, res) => {
 
     var colRef = firestore.collection("recipes")
+
+    colRef.get().then(snapshot => {
+        var recipes = [];
+        snapshot.forEach(docSearch => {
+            let name = docSearch.data().name.toLowerCase();
+            let input = req.params.search.toLowerCase();
+            if(name.includes(input)) {
+                recipes.push(docSearch.data())
+            }
+        });
+        return res.status(200).json(recipes)
+    }
+    ).catch((error) => {
+        return res.status(400).json({ "message": "Unable to connect to Firestore." });
+    });
+
+})
+
+//Search User Recipes
+
+app.get('/recipes/search/:user/:search', (req, res) => {
+
+    var colRef = firestore.collection("users").doc(req.params.user).collection("saved-recipes").orderBy('timeStamp',  'desc');
 
     colRef.get().then(snapshot => {
         var recipes = [];
