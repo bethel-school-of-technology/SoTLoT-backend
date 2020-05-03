@@ -51,13 +51,6 @@ app.get('/recipes', (req, res) => {
     colRef.get().then(snapshot => {
         var recipes = [];
         snapshot.forEach(doc => {
-            // After the recipes are all loaded, we can remove this line ->
-            if (doc.id !== doc.data().id) {
-                colRef.doc(doc.id).update({
-                    id: doc.id
-                })
-            }
-            // <- to this line
             recipes.push(doc.data())
         });
         return res.status(200).json(recipes)
